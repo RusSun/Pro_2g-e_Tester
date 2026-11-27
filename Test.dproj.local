@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx7.1\Unit_ConrtolOptions.pas=C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx7.1\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.2\Unit_Records.pas=C:\Users\Leysan\Desktop\Test 17.2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx7.1\Conrtol_Options.pas=C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx7.1\Unit_ConrtolOptions.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.2\Unit_Options.pas=C:\Users\Leysan\Desktop\Test 17.2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.2\Unit_Act.pas=C:\Users\Leysan\Desktop\Test 17.2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.2\Unit_Params.pas=C:\Users\Leysan\Desktop\Test 17.2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.2\Unit_Timer.pas=C:\Users\Leysan\Desktop\Test 17.2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx6\Unit_Stat.pas=C:\Users\Leysan\Desktop\Test 17.3\Test 17.3 - NewStateEx6\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,154 @@
+
+function IsMnTRueAnsers:Boolean;
+var i:Integer;
+    MoreOne:Integer;
+begin
+result:=False;
+ MoreOne:=0;
+  for i:=0 to PQuestion(QuestionList.Items[Question]).ResultCount-1 do //идем по списку вопросов
+                        begin
+  if PQuestion(QuestionList.Items[Question]).ResiltValue[i] = true then
+                        inc(MoreOne);
+                        if MoreOne>1 then
+                                          begin
+                                          result:=True;
+                                          break;
+                                          end;
+
+                        end;
+end;
+
+procedure NextButtonClick(Sender: PControl);
+var
+ OK:Boolean; //Верный или не верный ответ на данный вопрос
+ NoneAnser:Boolean; //Ответ/ы пропущен/ы, то есть не был/и выбран/ы
+ i:Integer;
+ Good,Error,NoAnser: String; //
+ ErrorAnserText:String;
+ GoodAnserText:String;
+ //----Для мновественных верных ответов
+
+begin
+//formResize(Sender);
+ Good :=    ' ответ верен';
+ Error :=   '   НЕ ВЕРНЫЙ';
+ NoAnser := ' Овет пропущен';
+ OK :=false;//Изначально ничего не выбрано и этот флаг "Не верный ответ"
+ NoneAnser := true; //Флаг -> Ответ/ы пропущен/ы, то есть не был/и выбран/ы
+
+//*** NoneAnser -> check NoneAnser флаг "Ответ пропущен"
+// Проверка что ответ пропущен, ничего не выбрано (нет не одной галочки в соотвествующем/их поле/ях)
+   for i:=0 to PQuestion(QuestionList.Items[Question]).ResultCount-1 do //идем по списку вопросов
+       //Если всЁтаки ответ дан и он есть (галочка есть),то флаг "Ответ пропущен"-> принимает значение False
+       if QuestionCheckList.LVItemStateImgIdx[i] = 2 then
+       begin
+       NoneAnser:= False;
+       ErrorAnserText:=NoAnser;
+       end;
+//***End no Anser
+
+ if  not IsMnTRueAnsers then  //Для случая если верный ответ только один и соответсвенно неправильный ответ тоже 1
+  begin // MsgOK('Режим Только 1');
+                         if not NoneAnser then //ответы не пропущены есть!
+      Begin
+                         for i:=0 to PQuestion(QuestionList.Items[Question]).ResultCount-1 do //идем по списку вопросов
+                          if (QuestionCheckList.LVItemStateImgIdx[i] = 2) and
+                          (PQuestion(QuestionList.Items[Question]).ResiltValue[i] = true)
+                              then
+                                begin
+                          OK:=true;
+                          GoodAnserText:=PQuestion(QuestionList.Items[Question]).ResiltText[i]
+                                end;
+                          Error :=   '   НЕ ВЕРНЫЙ';
+                          if not OK then ErrorAnserText:=PQuestion(QuestionList.Items[Question]).ResiltText[LVItemCurrent];
+                           
+      End
+      Else
+      Begin
+      Error:='';
+      ErrorAnserText:= NoAnser;
+      end 
+  end //End Only One Anser
+   Else
+   Begin  //Если Правильных ответов больше чем 1
+  // MsgOK('Режим Мн');
+                     for i:=0 to PQuestion(QuestionList.Items[Question]).ResultCount-1 do //идем по списку вопросов
+                    if (QuestionCheckList.LVItemStateImgIdx[i] = 2) and
+                    (PQuestion(QuestionList.Items[Question]).ResiltValue[i] = true)
+                        then
+                          begin
+                    OK:=true;
+                    GoodAnserText:=GoodAnserText+'|'+PQuestion(QuestionList.Items[Question]).ResiltText[i]
+                          end;
+                    //Собираем Все правильные ответы
+                    //Далее проверяем есть ли неправильные отмеченные
+                    //Собираем их
+                    if not NoneAnser then //ответы не пропущены есть!
+                     Begin
+                     Error :=   '   НЕ ВЕРНЫЙ';
+                     for i:=0 to PQuestion(QuestionList.Items[Question]).ResultCount-1 do //идем по списку вопросов
+                    if (QuestionCheckList.LVItemStateImgIdx[i] = 2) and
+                    (PQuestion(QuestionList.Items[Question]).ResiltValue[i] = false)
+                        then
+                          begin
+                    OK:=False;
+                    ErrorAnserText:=ErrorAnserText+'|'+PQuestion(QuestionList.Items[Question]).ResiltText[i]
+                          end;
+                     End
+                     Else
+                     Begin
+                      Error:='';
+                      ErrorAnserText:= NoAnser;
+                     end;
+                    //Смешанный ответ
+                    //if (GoodAnserText<>'') and (ErrorAnserText<>'')
+                    //then ErrorAnserText:='Смешанный ответ '+#13#10+' Ошибочно '+ErrorAnserText+#13#10+' Верно '+GoodAnserText;
+
+   end;
+  //or
+  {if (PQuestion(QuestionList.Items[Question]).ResiltValue[i] = false)  and
+   (QuestionCheckList.LVItemStateImgIdx[i] = 1)}
+
+ if OK=false then
+  Inc(FalseNumber);
+ Inc(IntColor);//для позиционирования
+ if IntColor = 21 then begin IntColor:= 1;MakeAgainQ;end;
+ AddRecord('Q '+QNumber+GetTextQPart(QuestionLabel.Caption),'');
+ if OK then
+  begin
+    B[IntColor].Color := clgreen;//$7F299
+    if Record_On then AddRecord({QNumber+}'', Good+' '+GetAnserText(GoodAnserText)+#13#10);
+  end
+ else
+  begin
+    B[IntColor].Color := clred;
+    if Record_On then AddRecord({QNumber}'', Error+' '+GetAnserText(ErrorAnserText)+#13#10);
+    if Can_Error_ReTest then ErrorsList.Add( PQuestion(QuestionList.Items[Question]));
+  end;
+  B[IntColor].Visible := true;
+ QuestionList.Delete(Question);
+
+ if QuestionNumber< Count then
+  NextQuestion(sender)
+
+ else
+  begin
+  FullTest:=True;
+  //MessageBoxA(0,pchar('Вы закончили тест с количеством ошибок = '+Int2Str(FalseNumber)),'Внимание!!!',MB_ok);
+   //msgbox(pchar('Вы закончили тест с количеством ошибок = '+Int2Str(FalseNumber)),+MB_ok);
+  QuestionCheckList.Clear;
+  //FalseNumber:=100; //Для тестирования "длины вывода ошибок" если >100,
+  // то третий символ не был виден
+  QuestionLabel.Text:= Form.Caption+#32+#13#10+
+  'Вы закончили тест с количеством ошибок = '+Int2Str(FalseNumber);
+  ShowTime:=False;
+  form.StatusText[0]:=pchar('');
+
+   if Record_On then FinRecord;
+   NextButton.Enabled:=false;
+   toolbar1.TBButtonEnabled[0]:=true;
+   if (FalseNumber>0) and Can_Error_ReTest then ErrorsButton.Visible:= True;
+  end;
+  //if QuestionList.Count-1=0 then form.StatusText[0]:='';
+  PB.Invalidate;
+end;

@@ -1,0 +1,29 @@
+//Вторая форма
+procedure form2click(Sender:PControl; var mouse:TMouseEventData);
+var Dialog:pOpenSaveDialog;
+begin
+Dialog:=NewOpenSaveDialog('','',[]) ;
+        Dialog.title := 'Открыть';
+        dialog.Filter := '*.txt|*.txt|все|*.*';
+        Dialog.OpenDialog := true;
+    if Dialog.Execute then  Memo.add(StrLoadFromFile(Dialog.Filename)) else exit;
+Memo.show;
+//msgok('вызов диалога открытия файла')
+end;
+
+  if FileExists(Dialog.Filename) then ShowMessage('Файл '+FileShortPath(Dialog.Filename)+' загружаем...')else exit;
+
+
+procedure MViewer(Dummy:pointer);
+begin
+if not Assigned( Form2 ) then
+          NewForm(  form ,'Form2');Memo.Text := '';
+          Form2.Show;
+end;//end procedure
+
+Memo := NewEditBox( panel, [ eoMultiline, eoNoHScroll ] ).SetPosition( 8,38 ).SetAlign ( caClient );
+
+Memo.Color := clWindow;
+Memo.Text := '';
+Memo.Hide;
+form2.Hide;

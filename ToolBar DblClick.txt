@@ -1,0 +1,3 @@
+QuestionTreeView.Handle
+
+TOnToolbarButtonClick(MakeMethod(nil,@Toolbar_Edit_QClick)

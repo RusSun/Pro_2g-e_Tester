@@ -1,0 +1,38 @@
+QuestionCheckList.OnMouseDown := TOnMouse(MakeMethod(nil, @QuestionCheckList_MouseDown));
+
+procedure QuestionCheckList_MouseDown(Dummy:Pointer; Sender: PControl; var Mouse: TMouseEventData);
+ var Item: Integer;
+ Where: TWherePosLVItem;
+begin
+// msgok(' MouseDown ');
+ if (Mouse.Button = mbRight) then
+ Begin
+ if not NextButton.Enabled then exit;
+ NextButtonClick(Sender);// Левая клавиша мыши  - Перемещаем окно
+ End
+ Else
+ Begin
+  Item := Sender.LVItemAtPosEx(Mouse.X, Mouse.Y, Where);
+  LVItemCurrent:=Item;//Запоминаем текуший ответ
+ if (Item >= 0) and (Where <> lvwpOnStateIcon) then
+   Sender.LVItemStateImgIdx[Item] := Sender.LVItemStateImgIdx[Item] xor 3;
+ end;
+end;
+
+
+procedure TForm1.ListView1MouseDown(Sender: PControl;
+  var Mouse: TMouseEventData);
+begin
+
+end;
+
+ResultView.OnMouseDown := TOnMouse(MakeMethod(nil, @ResultViewMouseDown));
+
+procedure ResultViewMouseDown(Sender: PControl;
+  var Mouse: TMouseEventData);
+begin
+  if (Mouse.Button = mbRight) then
+  Msgok('мой правый клик')
+end;
+
+procedure Bt_Q_Ready_click(Dummy:pointer;Sender:PControl; var mouse:TMouseEventData)

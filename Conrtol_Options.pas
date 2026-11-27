@@ -1,0 +1,228 @@
+unit Conrtol_Options;
+
+interface
+uses KOL,KOLMHFontDialog;
+ //Объявим чтобы видеть его из другого модуля
+procedure WinCntlOptions(Sender: PControl);{Вызов окна Опции}
+var
+Win_Options: PControl; //Форма окна опции
+lbl: PControl; //Надпись для демострации шрифта
+implementation
+uses Unit_Act;
+//QuestionLabel from Unit_Act
+{function ColorToString(Color: TColor): string;
+begin
+  if not ColorToIdent(Color, Result) then
+    FmtStr(Result, '%s%.8x', [HexDisplayPrefix, Color]);
+end;
+    //Int2Hex
+function StringToColor(const S: string): TColor;
+begin
+  if not IdentToColor(S, Longint(Result)) then
+    Result := TColor(StrToInt(S));
+end; }
+{Метод передачи настроек шрифта для-> "Надпись вопроса" }
+//For QLabel
+procedure DoMHFontClick(Dummy,Sender: PObj);
+var fd: PMHFontDialog;
+begin
+ fd := NewMHFontDialog(form);
+
+ fd.options :=  fd.options + [fdEffects, fdInitFont];
+
+ fd.InitFont.Assign(lbl.font);
+ fd.InitFont.Assign(QuestionLabel.font);
+ if fd.Execute then begin
+   lbl.Font.assign(fd.Font);
+   QuestionLabel.Font.Assign(fd.Font);
+                    end;
+ fd.Free;
+end;
+
+{Метод передачи настроек шрифта для-> "Варианты Ответов"  }
+procedure DoMHFont_Ansers_Click(Dummy,Sender: PObj);
+var fd_A: PMHFontDialog;
+begin
+ fd_A := NewMHFontDialog(form);
+
+ fd_A.options :=  fd_A.options + [fdEffects, fdInitFont];
+
+ fd_A.InitFont.Assign(lbl.font);
+ fd_A.InitFont.Assign(QuestionCheckList.font);
+ if fd_A.Execute then begin
+   lbl.Font.assign(fd_A.Font);
+   QuestionCheckList.font.Assign(fd_A.Font);
+   QuestionCheckList.LVTextColor:=fd_A.Font.Color;
+                    end;
+ fd_A.Free;
+end;
+
+{Метод возврат настройек по умолчанию}
+procedure Default_Click(Dummy,Sender: PObj);
+begin
+//Form.Font.FontName
+with Form.Font^ do begin
+QuestionLabel.font.Assign(Form.Font);
+QuestionCheckList.font.Assign(Form.Font);
+                    end;
+ QuestionCheckList.Font.FontName := 'MS Sans Serif';
+ QuestionCheckList.Font.FontCharset := 0;
+ QuestionCheckList.LVTextColor:=clblack;
+ //Obt[g].Font.fontStyle:=Obt[g].Font.fontStyle+[fsBold];//жирный
+//Obt[g].Font.fontStyle:=Obt[g].Font.fontStyle+[fsItalic];//курсив
+//Obt[g].Font.fontStyle:=Obt[g].Font.fontStyle+[fsUnderline];//подчёркнутый
+//Obt[g].Font.fontStyle:=Obt[g].Font.fontStyle+[fsStrikeOut];//зачёркнутый
+end;
+procedure Win_Options_Close(Sender: PObj; var Accept: Boolean);
+begin
+ OptBtn.Focused:=true
+end;
+{Метод для кнопки применить}
+procedure UseIt_Click(Dummy,Sender: PObj);
+begin
+  Win_Options.Close
+end;
+{Метод сохранить текущие настройки}
+procedure btn_SaveMature_Click(Dummy,Sender: PObj);
+var
+    file_Font:pstrlist;
+//-------------------
+begin
+file_Font:= NewStrList;
+//----- Read params -----
+//Ini_Obj_Font1.Assign(lbl.font);
+file_Font.Add(QuestionLabel.font.FontName); //  lbl.font.Name
+file_Font.Add(Int2Str(QuestionLabel.font.Color));
+file_Font.Add(Int2Str(QuestionLabel.font.FontHeight));
+if fsBold in QuestionLabel.font.fontStyle then file_Font.Add('fsBold ');
+if fsItalic in QuestionLabel.font.fontStyle then file_Font.Items[3]:=
+file_Font.Items[3]+'fsItalic ';
+
+if fsUnderline in QuestionLabel.font.fontStyle then file_Font.Items[3]:=
+file_Font.Items[3]+'fsUnderline ';
+
+if fsStrikeOut in QuestionLabel.font.fontStyle then file_Font.Items[3]:=
+file_Font.Items[3]+'fsStrikeOut';
+
+file_Font.Add(int2str(QuestionLabel.font.FontCharset));//4
+//=============================================
+//Ini_Obj_Font2.Assign(QuestionCheckList.Font);
+file_Font.Add(QuestionCheckList.Font.FontName); //  QuestionLabel.font.Name  5
+file_Font.Add(Int2Str(QuestionCheckList.LVTextColor));//6
+file_Font.Add(Int2Str(QuestionCheckList.font.FontHeight));//7
+
+if fsBold in QuestionCheckList.font.fontStyle then file_Font.Add('fsBold '); //8
+if fsItalic in QuestionCheckList.font.fontStyle then file_Font.Items[8]:=
+file_Font.Items[8]+'fsItalic ';
+
+if fsUnderline in QuestionCheckList.font.fontStyle then file_Font.Items[8]:=
+file_Font.Items[8]+'fsUnderline ';
+
+if fsStrikeOut in QuestionCheckList.font.fontStyle then file_Font.Items[8]:=
+file_Font.Items[8]+'fsStrikeOut';
+file_Font.Add(int2str(QuestionCheckList.font.FontCharset));
+
+//.LVTextColor:=cQuestionLabelack;
+//----- Save to file ----
+file_Font.SaveToFile(GetStartDir +'Obj_Font_Params');
+file_Font.Free;
+
+end;
+ (*IFDEF UNICODE_CTRLS
+   Result.Button1.SetUnicode(TRUE);
+   $ENDIF UNICODE_CTRLS*)
+{Метод Задать из подборки}
+//QuestionLabel.font.FontName := 'Tahoma';
+//QuestionLabel.Font.FontHeight:= -18;
+//QuestionLabel.font.Color:= clOlive;
+//QuestionLabel.font.fontStyle:=Form.Font.fontStyle+[fsBold];
+procedure btn_LoadMature_Click(Dummy,Sender: PObj);
+var
+    file_Font:pstrlist;
+//-------------------
+begin
+file_Font:= NewStrList;
+//----- Read params -----
+//.LVTextColor:=cQuestionLabelack;
+//----- Save to file ----
+file_Font.LoadFromFile(GetStartDir +'Obj_Font_Params');
+QuestionLabel.font.FontName:=file_Font.Items[0]; //  QuestionLabel.font.Name
+QuestionLabel.font.Color:=Str2int(file_Font.Items[1]);
+QuestionLabel.font.FontHeight:=Str2int(file_Font.Items[2]);
+if pos('fsBold',file_Font.Items[3])<>0 then QuestionLabel.font.fontStyle:=QuestionLabel.font.fontStyle+[fsBold];
+if pos('fsItalic',file_Font.Items[3])<>0 then QuestionLabel.font.fontStyle:=QuestionLabel.font.fontStyle+[fsItalic];
+if pos('fsUnderline',file_Font.Items[3])<>0 then QuestionLabel.font.fontStyle:=QuestionLabel.font.fontStyle+[fsUnderline];
+if pos('fsStrikeOut',file_Font.Items[3])<>0 then QuestionLabel.font.fontStyle:=QuestionLabel.font.fontStyle+[fsStrikeOut];
+QuestionLabel.font.FontCharset:=Str2int(file_Font.Items[4]);
+//=============================================
+QuestionCheckList.font.FontName:=file_Font.Items[5]; //  QuestionLabel.font.Name
+QuestionCheckList.LVTextColor:=Str2int(file_Font.Items[6]);
+QuestionCheckList.font.FontHeight:=Str2int(file_Font.Items[7]);
+if pos('fsBold',file_Font.Items[8])<>0 then QuestionCheckList.font.fontStyle:=
+QuestionCheckList.font.fontStyle+[fsBold];
+if pos('fsItalic',file_Font.Items[8])<>0 then QuestionCheckList.font.fontStyle:=
+QuestionCheckList.font.fontStyle+[fsItalic];
+if pos('fsUnderline',file_Font.Items[8])<>0 then QuestionCheckList.font.fontStyle:=
+QuestionCheckList.font.fontStyle+[fsUnderline];
+if pos('fsStrikeOut',file_Font.Items[8])<>0 then QuestionCheckList.font.fontStyle:=
+QuestionCheckList.font.fontStyle+[fsStrikeOut];
+QuestionCheckList.font.FontCharset:=Str2int(file_Font.Items[9]);
+file_Font.Free;
+Win_Options.Close
+end;
+{Вызов окна "Опции Контролов"}
+procedure WinCntlOptions(Sender: PControl);
+var GroupBox: PControl;//котейнер для других контролов
+btn_QLabel: PControl; //Кпопка для изменения настройек шрифта -> "Надписи вопроса" в данном тесте
+btn_Ansers: PControl; //Кнопка для изменения настройек шрифта -> "Надписей ответов" в данном тесте
+btn_Default: PControl; //Сброс настрок до "По умолчанию"
+//btn_UseIt:   PControl; //Кнопка применить
+btn_SaveMature: PControl; //Кнопка Сохранить настройки
+btn_LoadMature: PControl; //Кнопка Загрузить настройки
+begin
+   Win_Options:= NewForm(Form,'Окно '+#34+'Опции Контролов'+#34+' в разработке ...');
+//   SetClientSize(GetSystemMetrics(SM_CXSCREEN),
+//   GetSystemMetrics(SM_CXSCREEN));
+//   Win_Options.Font.FontName := 'MS Sans Serif';
+//   Win_Options.Font.FontCharset := 0;
+   Win_Options.Font.FontName:='Times New Roman';
+   Win_Options.Font.FontHeight:=-16;
+
+   Win_Options.OnClose:=TOnEventAccept(MakeMethod(nil,@Win_Options_Close));
+//   Win_Options.Margin:=0;
+   Win_Options.SetClientSize( 596, 295  ).CenterOnParent;
+   GroupBox:= NewGroupBox(Win_Options, ' Настройка надписи '+#34+'Вопрос'+#34 ).
+   setalign( caClient );
+
+   Lbl := NewLabel(GroupBox,' Образец "Изменяемой Надписи"  ').AutoSize(True).ResizeParentRight;
+   Lbl.Top:= 35;
+   btn_QLabel := NewButton(GroupBox,' Изменить -> настройки шрифта для -> "Надпись вопрос" ...').AutoSize(true).PlaceUnder.ResizeParentBottom;
+   btn_QLabel.Top:= 70;
+   btn_QLabel.OnClick := TOnEvent(MakeMethod(nil, @DoMHFontClick));
+
+   btn_Ansers := NewButton(GroupBox,' Изменить -> настройки шрифта для -> "Надписей ответов" ...').AutoSize(true).PlaceUnder.ResizeParentBottom;
+   btn_Ansers.Top:= 110;
+   btn_Ansers.OnClick := TOnEvent(MakeMethod(nil, @DoMHFont_Ansers_Click));
+
+   btn_Default := NewButton(GroupBox,' По умолчанию ').AutoSize(true).PlaceUnder.ResizeParentBottom;
+   btn_Default.Top:= 150;
+   btn_Default.OnClick := TOnEvent(MakeMethod(nil, @Default_Click));
+
+  { btn_UseIt := NewButton(GroupBox,' Применить ').AutoSize(true).PlaceUnder;
+   btn_UseIt.left:= GroupBox.Width -135;
+   btn_UseIt.Top:= 210; }
+
+   btn_SaveMature:= NewButton(GroupBox,' Сохранить текущие настройки ').AutoSize(true).PlaceUnder.ResizeParentBottom;
+   btn_SaveMature.Top:= 190;
+   btn_SaveMature.Left:= 5;
+   btn_SaveMature.OnClick := TOnEvent(MakeMethod(nil, @btn_SaveMature_Click));
+
+   btn_LoadMature:= NewButton(GroupBox,' Задать из подборки  ').AutoSize(true).PlaceUnder.ResizeParentBottom;
+   btn_LoadMature.Top:= 230;
+   btn_LoadMature.Left:= 5;
+   btn_LoadMature.OnClick := TOnEvent(MakeMethod(nil, @btn_LoadMature_Click));
+   //btn_UseIt.PlaceRight;
+  // btn_UseIt.OnClick := TOnEvent(MakeMethod(nil, @UseIt_Click));
+end;
+
+end.

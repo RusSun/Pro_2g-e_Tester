@@ -1,0 +1,116 @@
+program Test;
+ //created by Gallamov Ruslan copyright ® 18.01.2020
+uses
+  Windows,
+  KOL,
+  Unit_Act in 'Unit_Act.pas',
+  Unit_Params in 'Unit_Params.pas';
+
+{$R test.res}
+{$R MANIFEST.res}
+{$R ImageListFour.res}
+var  Form1_Main: PForm1;//Главная форма
+{Метод формы изменние размера}
+procedure formResize(Sender: PObj);
+begin
+ {Button2.Top := Form.ClientHeight - Button2.Height - 10;
+ ListView1.Height := Button2.Top - ListView1.Top - 8;}
+
+//QuestionCheckList.Width := form.Width -162;
+//if not PB.Visible then form.SetClientSize( 535,334 )
+//else form.SetClientSize( 725,494 );
+
+QuestionCheckList.Height:=form.Height-184;
+NextButton.Top := form.ClientHeight - 26;
+NextButton.Left :=  form.ClientWidth - 98;
+//form.Caption :=  ' Left '+int2str(NextButton.Left)+ ' Top '+int2str(NextButton.Top);
+//QuestionCheckList.top:=
+{B1.Top := EditQst.ClientHeight - B1.Height - 10;
+B2.Top := EditQst.ClientHeight - B2.Height - 10;
+EB1.Width := EditQst.Width - 218; }
+
+end;
+
+{Вызов главной формы}
+procedure NewForm1(var Result: PForm1; AParent: PControl);
+var
+I:integer;  //итератор для цикла размещения цветовой "строки состояния"
+P:integer;  //для позиционирования "элементов" цветовой "строки состояния"
+begin
+ New(Result, Create);
+ with Result^ do
+ begin
+   Form := NewForm(AParent,'Программа тестирования');
+   Form.Add2AutoFree(Result);
+   Applet := Form;
+   Form.SetClientSize( 725,494 ).CenterOnParent;
+   //Form.Font.FontName := 'MS Sans Serif';
+   //Form.Font.FontCharset := 0;
+   form.OnResize:=TonEvent(MakeMethod(nil,@formResize));
+   form.OnDestroy:=TOnevent(MakeMethod(nil,@FormDestroy));
+   form.OnClose:=TOnEventAccept(MakeMethod(nil,@Form_Close));
+   //form.OnShow:=TOnevent(MakeMethod(nil,@FormShow));
+
+   Toolbar1 := NewToolbar( form, caTop, [tboFlat],
+    LoadMappedBitmapEx( form, hInstance, 'IMAGELIST4',
+     [ clFuchsia, Color2RGB( clBtnFace ) ] ), [ '', '', '', '-', '' ],
+      [ 0, 1, 2, -2, 3 ] ).SetAlign ( caTop );
+    toolbar1.TBButtonEnabled[1 ]:=false;  //Отключение кнопки Запуска без
+                                          //открытия файла теста
+    LabelTE:= NewLabel( form, '00:00:00' ).autosize(true).SetPosition(120,8); //AutoSize(true).PlaceRight;
+    LabelTE.Font.FontHeight:=-21;
+    LabelTE.Font.Color:= clgreen;
+    LabelTE.BringToFront;
+    LabelTE.Visible:=False;
+
+    PB:=NewPaintbox(Form).SetClientSize(725,272).SetAlign ( caTop );
+    //PB.BoundsRect:=MakeRect(0,10,300,210);
+    PB.OnPaint:= TOnPaint( MakeMethod( nil, @Unit_Act.DoPaint));
+    PB.Visible:= False;
+    CreateForm;
+    Paneltop := NewPanel( Form, esNone ).SetAlign ( caTop ).SetSize( 0, 25 );
+    p := 0;
+    for I := 1 to 20 do begin
+        B[I] := NewPanel(Paneltop,esLowered ).SetPosition( p,5 ).SetSize( 15, 15 );
+        B[I].Visible := false;
+        p := p + 15;
+                    end;
+
+    QuestionLabel := NewLabel( Form, '' ).SetPosition( 8, 38 ).SetSize( 505, 63 ).MakeWordWrap;
+    //QuestionLabel.Color := clGray;
+    QuestionLabel.SetAlign ( caTop ); //lvsDetailNoHeader
+
+    QuestionCheckList:=newlistview(Form,lvsList,[lvoNoScroll,lvoMultiselect,lvoCheckBoxes],nil,nil,nil).PlaceUnder.SetAlign ( caTop );//SetSize(505,137);//SetPosition(8,112)
+    //QuestionCheckList.RightClick:=true;
+    //QuestionCheckList.OnClick:=TonEvent(MakeMethod(nil,@QuestionCheckListClick));
+    QuestionCheckList.OnMouseDown := TOnMouse(MakeMethod(nil, @QuestionCheckList_MouseDown));
+
+    NextButton := NewButton(Form, ' Дальше >>' ).SetPosition(424, 264 ).SetSize(86,25);//PlaceUnder
+    NextButton.Enabled:=false;
+    NextButton.BringToFront;
+
+    ErrorsButton := NewButton(Form, 'Проидти ошибки теста').SetSize(166,25).SetPosition(324, 344 );//.PlaceDown;//.PlaceUnder;
+    ErrorsButton.BringToFront; //.centeronparent;
+    ErrorsButton.Visible:= False;
+    ErrorsButton.OnMouseDown := TOnMouse(MakeMethod(nil,@ErrorsButton_MouseDown));
+
+    AddCommEditBox:= NewEditBox( form, [eomultiline,eoWantReturn,eoNoHScroll, eoNoVScroll] ).SetAlign(caBottom);//SetPosition( 68, 18).SetSize( 282,40);
+    AddCommEditBox.SetClientSize(0,20);
+    AddCommEditBox.Text:= 'Мой комментарий к вопросу.';
+    AddCommEditBox.Font.Color:=clGray;
+    AddCommEditBox.Color := clWindow;
+    AddCommEditBox.Visible:= False;
+
+    if AddCommentOn then AddCommEditBox.visible:=true; //Если включен режим добавления комментария
+    //область для работы
+    Toolbar1.OnTBClick:=TonEvent(MakeMethod(nil,@DoWorkToolBar));
+    Toolbar1.OnMouseDblClk:= TOnMouse(MakeMethod(nil,@Toolbar1MouseDblClk));
+    toolbar1.TBButtonVisible[2]:=False;
+ end;
+end;
+begin
+Applet:=NewForm(Applet,'');
+NewForm1(Form1_Main, nil);
+Run(Applet);
+ // Run(Form1.Form);
+end.

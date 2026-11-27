@@ -1,0 +1,4 @@
+// procedure KOLForm1Close(Sender: PObj; var Accept: Boolean);
+//procedure TForm1.KOLForm1Close(Sender: PObj; var Accept: Boolean);
+//begin
+//end;
